@@ -2,44 +2,34 @@
 
 main(){
 
-  local action trgnam trgval trgsts
+  action=$1 variable_name=$2 value_to_set=$3
 
-  action="${1:-}"
-  trgnam="${2:-}"
-  trgval="${3:-}"
-  
-  trgsts="$(
-    i3-msg -t get_marks | awk -v trg="$trgnam" -F',' '{
-      gsub("[[]|\"|[]]","",$0)
-      for(i=1;i<NF+1;i++){
-        if($i~trg){print $i;exit}
-      }
-    }'
-  )"
+  [[ $action =~ get|set && ${#@} -gt 1 ]] \
+    || ERX "$* not a valid command"
 
-  if [[ $action = set ]]; then
-    if [[ -n $trgval ]]; then
-      if [[ -z $trgsts ]]; then
-        i3gw "${trgnam}=${trgval}"
-        i3-msg -q "[con_mark=${trgnam}]" move scratchpad
-      elif [[ $trgval = X ]]; then
-        i3-msg -q "[con_mark=${trgnam}]" kill
-      else
-        i3-msg -q "[con_mark=${trgnam}]", mark "${trgnam}=${trgval}"
-      fi
-    else
-      i3-msg -q "[con_mark=${trgnam}]", mark "${trgnam}=X"
-    fi
-  elif [[ $action = get ]]; then
-    trgsts="${trgsts#*=}"
-    if [[ -z $trgsts ]] || [[ $trgsts = X ]]; then
-      exit 1
-    else
-      echo "${trgsts}"
-    fi
-  else
-    ___printhelp
-  fi
+  re="\"${variable_name}=([^\"]*)\""
+
+  [[ $(i3-msg -t get_marks) =~ $re ]] \
+    && current_value=${BASH_REMATCH[1]}
+
+  [[ $action = get ]] && {
+    [[ $current_value ]] && echo "$current_value"
+    exit
+  }
+
+  new_mark="${variable_name}=$value_to_set"
+  old_mark="${variable_name}=$current_value"
+
+  [[ $(i3-msg -t get_tree) =~ ^\{\"id\":([0-9]+).+ ]] \
+      && root_id=${BASH_REMATCH[1]}
+
+  # this will remove the old mark
+  [[ $current_value ]] \
+    && i3-msg -q "[con_mark=$old_mark] mark --toggle --add $old_mark"
+
+  [[ $value_to_set ]] && {
+    i3-msg -q "[con_id=$root_id] mark --add $new_mark"
+  }
 }
 
 ___source="$(readlink -f "${BASH_SOURCE[0]}")"  #bashbud

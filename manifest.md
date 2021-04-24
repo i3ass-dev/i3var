@@ -1,13 +1,13 @@
 ---
 description: >
   Set or get a i3 variable
-updated:       2020-08-12
-version:       0.034
+updated:       2021-04-24
+version:       0.050
 author:        budRich
 repo:          https://github.com/budlabs/i3ass
 created:       2017-12-22
-dependencies:  [bash, gawk, sed, i3, i3gw]
-see-also:      [bash(1), awk(1), i3(1), i3gw(1)]
+dependencies:  [bash, i3]
+see-also:      [bash(1), i3(1)]
 environment-variables:
     ENV_VAR_TEST:  $HOME/.config
 synopsis: |
