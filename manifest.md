@@ -11,8 +11,8 @@ see-also:      [bash(1), i3(1)]
 environment-variables:
     ENV_VAR_TEST:  $HOME/.config
 synopsis: |
-    set VARNAME [VALUE]
-    get VARNAME
+    set VARNAME [VALUE] [--json JSON]
+    get VARNAME [--json JSON]
     --help|-h
     --version|-v
 ...

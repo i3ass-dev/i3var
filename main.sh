@@ -7,29 +7,32 @@ main(){
   [[ $action =~ get|set && ${#@} -gt 1 ]] \
     || ERX "$* not a valid command"
 
-  re="\"${variable_name}=([^\"]*)\""
+  : "${json:=${__o[json]:-$(i3-msg -t get_tree)}}"
 
-  [[ $(i3-msg -t get_marks) =~ $re ]] \
-    && current_value=${BASH_REMATCH[1]}
+  re='^\{"id":([0-9]+)[^[]+\[([^]]*"'"${variable_name}"'=([^"]*)"[^]]*)?'
+  [[ $json =~ $re ]] || ERX "no vars found"
 
-  [[ $action = get ]] && {
-    [[ $current_value ]] && echo "$current_value"
-    exit
-  }
+  root_id=${BASH_REMATCH[1]}
+  current_value=${BASH_REMATCH[3]}
 
-  new_mark="${variable_name}=$value_to_set"
-  old_mark="${variable_name}=$current_value"
+  if [[ $action = set ]]; then
 
-  [[ $(i3-msg -t get_tree) =~ ^\{\"id\":([0-9]+).+ ]] \
-      && root_id=${BASH_REMATCH[1]}
+    new_mark="${variable_name}=$value_to_set"
+    old_mark="${variable_name}=$current_value"
 
-  # this will remove the old mark
-  [[ $current_value ]] \
-    && i3-msg -q "[con_mark=$old_mark] mark --toggle --add $old_mark"
+    # this will remove the old mark
+    [[ $current_value ]] \
+      && msg+="[con_id=$root_id] mark --toggle --add $old_mark;"
 
-  [[ $value_to_set ]] && {
-    i3-msg -q "[con_id=$root_id] mark --add $new_mark"
-  }
+    [[ $value_to_set ]] \
+      && msg+="[con_id=$root_id] mark --add $new_mark"
+
+    i3-msg -q "$msg"
+
+  elif [[ $current_value ]]; then
+
+    echo "$current_value"
+  fi
 }
 
 ___source="$(readlink -f "${BASH_SOURCE[0]}")"  #bashbud
