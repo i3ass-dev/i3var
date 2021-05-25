@@ -27,7 +27,7 @@ main(){
     [[ $value_to_set ]] \
       && msg+="[con_id=$root_id] mark --add $new_mark"
 
-    i3-msg -q "$msg"
+    i3-msg -q "${msg%;}"
 
   elif [[ $current_value ]]; then
 
