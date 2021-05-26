@@ -1,15 +1,13 @@
 ---
 description: >
   Set or get a i3 variable
-updated:       2021-04-24
+updated:       2021-05-26
 version:       0.050
 author:        budRich
 repo:          https://github.com/budlabs/i3ass
 created:       2017-12-22
 dependencies:  [bash, i3]
 see-also:      [bash(1), i3(1)]
-environment-variables:
-    ENV_VAR_TEST:  $HOME/.config
 synopsis: |
     set VARNAME [VALUE] [--json JSON]
     get VARNAME [--json JSON]
